@@ -16,7 +16,22 @@ const geistMono = Geist_Mono({
 
 // Dynamic metadata generation based on database configuration
 export async function generateMetadata(): Promise<Metadata> {
-  await dbConnect();
+  const conn = await dbConnect();
+  
+  // Fallback immediately if database is not connected (e.g. during build)
+  if (!conn) {
+    return {
+      title: "JADEED Coconut Oil - Customer Portal",
+      description: "Secure customer, order, payment and report management application for JADEED Coconut Oil.",
+      manifest: "/manifest.json",
+      appleWebApp: {
+        capable: true,
+        title: "JADEED",
+        statusBarStyle: "default",
+      },
+    };
+  }
+
   try {
     const settings = await AppSettings.findOne({});
     if (!settings) {
@@ -63,7 +78,19 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // Dynamic viewport styling based on custom theme colors
 export async function generateViewport() {
-  await dbConnect();
+  const conn = await dbConnect();
+  
+  if (!conn) {
+    return {
+      themeColor: "#166534",
+      width: "device-width",
+      initialScale: 1,
+      maximumScale: 1,
+      userScalable: false,
+      viewportFit: "cover",
+    };
+  }
+
   try {
     const settings = await AppSettings.findOne({});
     return {

@@ -5,8 +5,37 @@ import { AppSettings } from "@/lib/models";
 export const dynamic = "force-dynamic";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
-  await dbConnect();
+  const conn = await dbConnect();
   
+  // Return static fallback manifest details if database is not connected (e.g. during build)
+  if (!conn) {
+    return {
+      name: "JADEED Coconut Oil",
+      short_name: "JADEED",
+      description: "Customer and order management portal for JADEED Coconut Oil",
+      theme_color: "#166534",
+      background_color: "#ffffff",
+      display: "standalone",
+      orientation: "portrait",
+      scope: "/",
+      start_url: "/",
+      icons: [
+        {
+          src: "/icons/icon-192.png",
+          sizes: "192x192",
+          type: "image/png",
+          purpose: "maskable",
+        },
+        {
+          src: "/icons/icon-512.png",
+          sizes: "512x512",
+          type: "image/png",
+          purpose: "maskable",
+        },
+      ],
+    };
+  }
+
   try {
     const settings = await AppSettings.findOne({});
     

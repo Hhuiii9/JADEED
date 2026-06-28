@@ -14,7 +14,12 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  await dbConnect();
+  const conn = await dbConnect();
+  if (!conn) {
+    // If database connection is completely offline, redirect to login
+    redirect("/login?error=database_offline");
+  }
+
   const user = await User.findById(session.userId);
 
   if (!user) {
