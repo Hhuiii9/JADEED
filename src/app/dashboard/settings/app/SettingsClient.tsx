@@ -198,7 +198,7 @@ export default function SettingsClient({ initialSettings }: SettingsClientProps)
   const handleSaveSettings = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/settings/app", {
+      const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

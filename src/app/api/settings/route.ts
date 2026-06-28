@@ -3,7 +3,7 @@ import { dbConnect } from "@/lib/db";
 import { AppSettings } from "@/lib/models";
 import { getAuthenticatedUser } from "@/lib/server-auth";
 
-// GET /api/settings/app - Public fetch for manifest or layouts
+// GET /api/settings - Fetch branding settings
 export async function GET() {
   try {
     await dbConnect();
@@ -48,7 +48,7 @@ export async function GET() {
   }
 }
 
-// PUT /api/settings/app - Update application configurations
+// PUT /api/settings - Update application configurations
 export async function PUT(request: Request) {
   try {
     await dbConnect();

@@ -20,7 +20,7 @@ function LoginForm() {
 
   useEffect(() => {
     // Fetch custom branding parameters from settings API
-    fetch("/api/settings/app")
+    fetch("/api/settings")
       .then((res) => res.json())
       .then((data) => {
         if (data) {
