@@ -10,7 +10,7 @@ import {
   Receipt,
   BarChart3,
   LogOut,
-  User as UserIcon,
+  Settings as SettingsIcon,
   Sprout,
   Menu,
   X
@@ -23,10 +23,17 @@ interface DashboardShellProps {
     email: string;
     phone: string;
   };
+  settings: {
+    appName: string;
+    shortName: string;
+    companyName: string;
+    logo: string | null;
+    themeColor: string;
+  };
   children: React.ReactNode;
 }
 
-export default function DashboardShell({ user, children }: DashboardShellProps) {
+export default function DashboardShell({ user, settings, children }: DashboardShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -37,6 +44,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
     { name: "Customers", href: "/dashboard/customers", icon: Users },
     { name: "Orders", href: "/dashboard/orders", icon: Receipt },
     { name: "Reports", href: "/dashboard/reports", icon: BarChart3 },
+    { name: "App Settings", href: "/dashboard/settings/app", icon: SettingsIcon },
   ];
 
   const handleLogout = async () => {
@@ -67,14 +75,23 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
     <div className="flex h-screen bg-brand-bg overflow-hidden">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-primary text-white border-r border-brand-border/20 shadow-premium">
-        {/* Brand Header */}
+        {/* Brand Header with Custom Logo */}
         <div className="p-6 border-b border-white/10 flex items-center gap-3">
-          <div className="bg-white/10 p-2 rounded-xl">
-            <Sprout className="h-6 w-6 text-accent" />
-          </div>
+          {settings.logo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={settings.logo} alt="Logo" className="h-9 w-auto max-h-9 object-contain bg-white/95 rounded-lg p-1" />
+          ) : (
+            <div className="bg-white/10 p-2 rounded-xl">
+              <Sprout className="h-6 w-6 text-accent" />
+            </div>
+          )}
           <div>
-            <h1 className="font-bold text-lg leading-tight tracking-wider">JADEED</h1>
-            <p className="text-xs text-accent/80 font-medium">Coconut Oil</p>
+            <h1 className="font-bold text-sm leading-tight tracking-wider uppercase truncate max-w-[130px]">
+              {settings.shortName}
+            </h1>
+            <p className="text-[10px] text-accent/80 font-medium truncate max-w-[130px]">
+              {settings.companyName}
+            </p>
           </div>
         </div>
 
@@ -106,7 +123,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
         {/* Profile Card & Logout */}
         <div className="p-4 border-t border-white/10 space-y-4">
           <div className="flex items-center gap-3 px-2">
-            <div className="bg-white/15 h-9 w-9 rounded-full flex items-center justify-center text-white border border-white/10 font-bold uppercase">
+            <div className="bg-white/15 h-9 w-9 rounded-full flex items-center justify-center text-white border border-white/10 font-bold uppercase select-none">
               {user.name.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
@@ -127,15 +144,22 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
 
       {/* Main Content Side */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {/* Mobile Header */}
+        {/* Mobile Header with Dynamic Logo */}
         <header className="flex md:hidden items-center justify-between px-6 h-16 bg-white border-b border-brand-border/60 shadow-sm z-20">
           <div className="flex items-center gap-2">
-            <Sprout className="h-5 w-5 text-primary" />
-            <span className="font-bold text-md text-primary tracking-wider uppercase">Jadeed</span>
+            {settings.logo ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={settings.logo} alt="Logo" className="h-7 w-auto max-h-7 object-contain bg-white rounded p-0.5 border" />
+            ) : (
+              <Sprout className="h-5 w-5 text-primary" />
+            )}
+            <span className="font-bold text-md text-primary tracking-wider uppercase truncate max-w-[120px]">
+              {settings.shortName}
+            </span>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="bg-primary/10 h-8 w-8 rounded-full flex items-center justify-center text-primary font-bold text-sm uppercase">
+            <div className="bg-primary/10 h-8 w-8 rounded-full flex items-center justify-center text-primary font-bold text-sm uppercase select-none">
               {user.name.charAt(0)}
             </div>
             <button
@@ -153,8 +177,13 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
             <div className="w-64 bg-primary text-white h-full flex flex-col shadow-2xl p-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
                 <div className="flex items-center gap-2">
-                  <Sprout className="h-6 w-6 text-accent" />
-                  <span className="font-bold text-lg tracking-wider">JADEED</span>
+                  {settings.logo ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={settings.logo} alt="Logo" className="h-8 w-auto max-h-8 object-contain bg-white rounded p-1" />
+                  ) : (
+                    <Sprout className="h-6 w-6 text-accent" />
+                  )}
+                  <span className="font-bold text-lg tracking-wider uppercase truncate max-w-[130px]">{settings.shortName}</span>
                 </div>
                 <button onClick={() => setMobileMenuOpen(false)} className="p-1 text-white/80 hover:text-white">
                   <X className="h-6 w-6" />
@@ -200,7 +229,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
         )}
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#f8faf9] relative z-10">
+        <main className="flex-grow overflow-y-auto custom-scrollbar bg-[#f8faf9] relative z-10">
           <div className="max-w-7xl mx-auto px-4 py-6 md:p-8 pb-24 md:pb-8">
             {children}
           </div>

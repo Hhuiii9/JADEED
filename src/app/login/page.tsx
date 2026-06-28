@@ -15,6 +15,21 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [logo, setLogo] = useState<string | null>(null);
+  const [appName, setAppName] = useState<string>("JADEED Coconut Oil");
+
+  useEffect(() => {
+    // Fetch custom branding parameters from settings API
+    fetch("/api/settings/app")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) {
+          if (data.logo) setLogo(data.logo);
+          if (data.appName) setAppName(data.appName);
+        }
+      })
+      .catch((err) => console.error("Error loading portal branding:", err));
+  }, []);
 
   useEffect(() => {
     if (searchParams.get("signup_success") === "true") {
@@ -66,17 +81,24 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full max-w-md animate-fade-in">
       {/* Logo Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex bg-primary/10 p-3.5 rounded-2xl mb-4 border border-primary/5">
-          <Sprout className="h-8 w-8 text-primary" />
+        <div className="inline-flex items-center justify-center mb-3 select-none">
+          {logo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={logo} alt={appName} className="h-16 w-auto max-h-16 object-contain" />
+          ) : (
+            <div className="bg-primary/10 p-3.5 rounded-2xl border border-primary/5">
+              <Sprout className="h-8 w-8 text-primary" />
+            </div>
+          )}
         </div>
         <h1 className="text-2xl md:text-3xl font-extrabold text-primary tracking-tight">
           Welcome Back
         </h1>
         <p className="text-brand-muted text-sm mt-2 font-medium">
-          Log in to manage JADEED Coconut Oil operations
+          Log in to manage {appName} operations
         </p>
       </div>
 

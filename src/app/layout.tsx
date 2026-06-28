@@ -1,6 +1,8 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { dbConnect } from "@/lib/db";
+import { AppSettings } from "@/lib/models";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,25 +14,77 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "JADEED Coconut Oil - Customer Portal",
-  description: "Secure customer, order, payment and report management application for JADEED Coconut Oil.",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    title: "JADEED",
-    statusBarStyle: "default",
-  },
-};
+// Dynamic metadata generation based on database configuration
+export async function generateMetadata(): Promise<Metadata> {
+  await dbConnect();
+  try {
+    const settings = await AppSettings.findOne({});
+    if (!settings) {
+      return {
+        title: "JADEED Coconut Oil - Customer Portal",
+        description: "Secure customer, order, payment and report management application for JADEED Coconut Oil.",
+        manifest: "/manifest.json",
+        appleWebApp: {
+          capable: true,
+          title: "JADEED",
+          statusBarStyle: "default",
+        },
+      };
+    }
 
-export const viewport: Viewport = {
-  themeColor: "#166534",
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: "cover",
-};
+    return {
+      title: `${settings.appName} - Customer Portal`,
+      description: `Secure customer, order, payment and report management application for ${settings.companyName}.`,
+      manifest: "/manifest.json",
+      icons: {
+        icon: settings.favicon || "/favicon.ico",
+        apple: settings.appleTouchIcon || "/apple-touch-icon.png",
+      },
+      appleWebApp: {
+        capable: true,
+        title: settings.shortName || "JADEED",
+        statusBarStyle: (settings.statusBarStyle || "default") as any,
+      },
+    };
+  } catch (error) {
+    console.error("Failed to generate dynamic layout metadata:", error);
+    return {
+      title: "JADEED Coconut Oil - Customer Portal",
+      description: "Secure customer, order, payment and report management application for JADEED Coconut Oil.",
+      manifest: "/manifest.json",
+      appleWebApp: {
+        capable: true,
+        title: "JADEED",
+        statusBarStyle: "default",
+      },
+    };
+  }
+}
+
+// Dynamic viewport styling based on custom theme colors
+export async function generateViewport() {
+  await dbConnect();
+  try {
+    const settings = await AppSettings.findOne({});
+    return {
+      themeColor: settings?.themeColor || "#166534",
+      width: "device-width",
+      initialScale: 1,
+      maximumScale: 1,
+      userScalable: false,
+      viewportFit: "cover",
+    };
+  } catch (error) {
+    return {
+      themeColor: "#166534",
+      width: "device-width",
+      initialScale: 1,
+      maximumScale: 1,
+      userScalable: false,
+      viewportFit: "cover",
+    };
+  }
+}
 
 export default function RootLayout({
   children,

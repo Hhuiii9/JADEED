@@ -1,28 +1,21 @@
 import { redirect } from "next/navigation";
 import { getAuthenticatedUser } from "@/lib/server-auth";
 import { dbConnect } from "@/lib/db";
-import { User, AppSettings } from "@/lib/models";
-import DashboardShell from "@/components/DashboardShell";
+import { AppSettings } from "@/lib/models";
+import SettingsClient from "./SettingsClient";
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AppSettingsPage() {
   const session = await getAuthenticatedUser();
   if (!session) {
     redirect("/login");
   }
 
   await dbConnect();
-  const user = await User.findById(session.userId);
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  // Fetch App Settings on the server
+  
+  // Fetch settings from MongoDB
   let settings = await AppSettings.findOne({});
+  
+  // Seed default settings if empty
   if (!settings) {
     settings = await AppSettings.create({
       appName: "JADEED Coconut Oil",
@@ -49,24 +42,30 @@ export default async function DashboardLayout({
     });
   }
 
-  const plainUser = {
-    id: user._id.toString(),
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-  };
-
+  // Convert Mongoose doc to plain object for React client
   const plainSettings = {
     appName: settings.appName,
     shortName: settings.shortName,
     companyName: settings.companyName,
+    companyAddress: settings.companyAddress,
+    supportPhone: settings.supportPhone,
+    supportEmail: settings.supportEmail,
+    website: settings.website,
     logo: settings.logo,
+    icon192: settings.icon192,
+    icon512: settings.icon512,
+    appleTouchIcon: settings.appleTouchIcon,
+    favicon: settings.favicon,
+    splashImage: settings.splashImage,
     themeColor: settings.themeColor,
+    backgroundColor: settings.backgroundColor,
+    statusBarStyle: settings.statusBarStyle,
+    displayMode: settings.displayMode,
+    installPromptEnabled: settings.installPromptEnabled,
+    offlineEnabled: settings.offlineEnabled,
+    pushNotificationEnabled: settings.pushNotificationEnabled,
+    backgroundSyncEnabled: settings.backgroundSyncEnabled,
   };
 
-  return (
-    <DashboardShell user={plainUser} settings={plainSettings}>
-      {children}
-    </DashboardShell>
-  );
+  return <SettingsClient initialSettings={plainSettings} />;
 }
